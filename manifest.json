@@ -1,0 +1,7 @@
+{
+  "name": "notes-client",
+  "short_name": "notes-client",
+  "description": "Notes application",
+  "start_url": "/",
+  "display": "standalone"
+}

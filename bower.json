@@ -7,7 +7,9 @@
     "paper-card": "^0.1.5",
     "paper-input": "^1.1.22",
     "paper-elements": "^1.0.7",
-    "iron-elements": "^1.0.10"
+    "iron-elements": "^1.0.10",
+    "polymerfire": "^2.1.0",
+    "iron-ajax": "^2.0.2"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

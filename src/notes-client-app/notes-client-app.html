@@ -6,6 +6,9 @@
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-auth.html">
 
 <dom-module id="notes-client-app">
   <template>
@@ -13,7 +16,7 @@
       :host {
         display: block;
       }
-      
+
       .card-content {
       	display: flex;
       	align-items: center;
@@ -27,24 +30,47 @@
 	      width: 90%;
 	      box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.37);
       }
-      
+
       .input {
-      	flex: 11;      
+      	flex: 11;
       	margin-bottom: 16px;
       }
-      
+
       .delete {
       	flex: 1;
       }
-      
+
       .button-area {
       	width: 90%;
       	display: flex;
       	justify-content: flex-end;
       }
-      
+
     </style>
-        
+
+    <firebase-app
+      auth-domain="notes-server.firebaseapp.com"
+      database-url="https://notes-server.firebaseio.com"
+      api-key="AIzaSyBoR0uwtLH2udEjETGLLgS-HuTV2gFhQrc"
+      >
+    </firebase-app>
+    <firebase-auth
+      id="auth" user="{{user}}"
+      provider="google"
+      on-error="_handleError">
+    </firebase-auth>
+
+    <iron-ajax
+      id="loginAjax"
+      url="http://localhost:8080/notes"
+      method="POST"
+      content-type="application/json"
+      handle-as="json"
+      last-response="{{sessionData}}"
+      with-credentials
+      debounce-duration="300"></iron-ajax>
+
+<!--
     <rest-api url="http://localhost:8080">
     	<rest-api-resource id="noteRef" name="notes" id-attribute="id" collection="{{notes}}"></rest-api-resource>
     </rest-api>
@@ -57,9 +83,12 @@
 				</div>
 			</paper-card>
 		</template>
-		
+-->
+
+    <paper-button raised on-click="_loginWithGoogle">Login with Google</paper-button>
+
 		<div class="button-area">
-			<paper-button raised on-tap="addNote">Add note</paper-button>		
+			<paper-button raised on-tap="addNote">Add note</paper-button>
 		</div>
   </template>
 
@@ -75,17 +104,34 @@
 				}
 			},
 
-			addNote: function() {				
+			addNote: function() {
 				this.push('notes', {});
 				setTimeout(function() {
-					this.notes.fetch();					
+					this.notes.fetch();
 				}.bind(this), 100);
-			}, 
-			
-			deleteNote: function(e) {				
+			},
+
+      _loginWithGoogle() {
+        this.$.auth.signInWithPopup()
+         .then(function(response) {
+           return this.$.auth.user.getToken(true)
+         }.bind(this))
+         .then(function(idToken) {
+           console.log(idToken);
+           this.$.loginAjax.body = {
+             "loginFirebaseToken": idToken
+           }
+           this.$.loginAjax.generateRequest();
+         }.bind(this))
+        .catch(function(error) {
+          console.log(error);
+        });
+      },
+
+			deleteNote: function(e) {
 				this.splice('notes', e.currentTarget.dataIndex, 1);
 			}
-			
+
     });
   </script>
 </dom-module>
